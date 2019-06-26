@@ -30,8 +30,10 @@ In order to try mpv.js you need to install mpv library first.
 ## Example
 
 ![](https://i.imgur.com/tLFkATs.png)
+[Simple Electron application on Angular](https://github.com/pavladan/mpv.js-on-angular)
 
-[Simple Electron application](example) yet capable of handling pretty much any available video thanks to mpv. Run:
+
+[Simple Electron application on React](example) yet capable of handling pretty much any available video thanks to mpv. Run:
 
 ```bash
 git clone https://github.com/Kagami/mpv.js.git && cd mpv.js
