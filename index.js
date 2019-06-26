@@ -6,8 +6,6 @@
 "use strict";
 
 const path = require("path");
-const React = require("react");
-const PropTypes = require("prop-types");
 
 /**
  * The MIME type associated with mpv.js plugin.
@@ -56,10 +54,7 @@ function getPluginEntry(pluginDir, pluginName = "mpvjs.node") {
   return `${pluginPath};${PLUGIN_MIME_TYPE}`;
 }
 
-/**
- * React wrapper.
- */
-class ReactMPV extends React.PureComponent {
+class MpvJs {
   /**
    * Send a command to the player.
    *
@@ -78,7 +73,10 @@ class ReactMPV extends React.PureComponent {
    * @param {*} value - Property value
    */
   property(name, value) {
-    const data = {name, value};
+    const data = {
+      name,
+      value
+    };
     this._postData("set_property", data);
   }
 
@@ -97,12 +95,17 @@ class ReactMPV extends React.PureComponent {
    *
    * @param {KeyboardEvent} event
    */
-  keypress({key, shiftKey, ctrlKey, altKey}) {
+  keypress({
+    key,
+    shiftKey,
+    ctrlKey,
+    altKey
+  }) {
     // Don't need modifier events.
     if ([
-      "Escape", "Shift", "Control", "Alt",
-      "Compose", "CapsLock", "Meta",
-    ].includes(key)) return;
+        "Escape", "Shift", "Control", "Alt",
+        "Compose", "CapsLock", "Meta",
+      ].includes(key)) return;
 
     if (key.startsWith("Arrow")) {
       key = key.slice(5).toUpperCase();
@@ -119,10 +122,10 @@ class ReactMPV extends React.PureComponent {
 
     // Ignore exit keys for default keybindings settings.
     if ([
-      "q", "Q", "ESC", "POWER", "STOP",
-      "CLOSE_WIN", "CLOSE_WIN", "Ctrl+c",
-      "AR_PLAY_HOLD", "AR_CENTER_HOLD",
-    ].includes(key)) return;
+        "q", "Q", "ESC", "POWER", "STOP",
+        "CLOSE_WIN", "CLOSE_WIN", "Ctrl+c",
+        "AR_PLAY_HOLD", "AR_CENTER_HOLD",
+      ].includes(key)) return;
 
     this.command("keypress", key);
   }
@@ -151,68 +154,62 @@ class ReactMPV extends React.PureComponent {
     return this.plugin;
   }
 
-  constructor(props) {
-    super(props);
+  constructor(mpvReady, propertyChange) {
     this.plugin = null;
+    if (mpvReady && propertyChange) {
+      this.onReady = mpvReady;
+      this.onPropertyChange = propertyChange;
+    }
   }
   _postData(type, data) {
-    const msg = {type, data};
+    const msg = {
+      type,
+      data
+    };
     this.node().postMessage(msg);
   }
   _handleMessage(e) {
     const msg = e.data;
-    const {type, data} = msg;
-    if (type === "property_change" && this.props.onPropertyChange) {
-      const {name, value} = data;
-      this.props.onPropertyChange(name, value);
-    } else if (type === "ready" && this.props.onReady) {
-      this.props.onReady(this);
+    const {
+      type,
+      data
+    } = msg;
+
+    if (type === "property_change" && this.onPropertyChange) {
+      const {
+        name,
+        value
+      } = data;
+      this.onPropertyChange(name, value);
+    } else if (type === "ready" && this.onReady) {
+      this.onReady(this);
     }
   }
-  componentDidMount() {
-    this.node().addEventListener("message", this._handleMessage.bind(this));
-  }
-  render() {
-    const defaultStyle = {display: "block", width: "100%", height: "100%"};
-    const props = Object.assign({}, this.props, {
-      ref: el => { this.plugin = el; },
+  getDefProps(dopProps = {}) {
+    const defaultStyle = {
+      display: "block",
+      width: "100%",
+      height: "100%"
+    };
+    const props = Object.assign({}, dopProps, {
+      ref: el => {
+        this.plugin = el;
+      },
       type: PLUGIN_MIME_TYPE,
-      style: Object.assign(defaultStyle, this.props.style),
+      style: Object.assign(defaultStyle, dopProps.style),
     });
-    delete props.onReady;
-    delete props.onPropertyChange;
-    return React.createElement("embed", props);
+    return props;
+  }
+  setPluginNode(node) {
+    if (node) {
+      this.plugin = node;
+    }
+    this.node().addEventListener("message", this._handleMessage.bind(this));
   }
 }
 
-/**
- * Accepted properties. Other properties (not documented) are applied to
- * the plugin element.
- */
-ReactMPV.propTypes = {
-  /**
-   * The CSS class name of the plugin element.
-   */
-  className: PropTypes.string,
-  /**
-   * Override the inline-styles of the plugin element.
-   */
-  style: PropTypes.object,
-  /**
-   * Callback function that is fired when mpv is ready to accept
-   * commands.
-   *
-   * @param {Object} mpv - Component instance
-   */
-  onReady: PropTypes.func,
-  /**
-   * Callback function that is fired when one of the observed properties
-   * changes.
-   *
-   * @param {string} name - Property name
-   * @param {*} value - Property value
-   */
-  onPropertyChange: PropTypes.func,
+module.exports = {
+  PLUGIN_MIME_TYPE,
+  getPluginEntry,
+  MpvJs
 };
-
-module.exports = {PLUGIN_MIME_TYPE, getPluginEntry, ReactMPV};

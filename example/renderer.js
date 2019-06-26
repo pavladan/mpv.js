@@ -4,13 +4,12 @@ const path = require("path");
 const React = require("react");
 const ReactDOM = require("react-dom");
 const {remote} = require("electron");
-const {ReactMPV} = require("../index");
+const {MpvJs} = require("../index");
 
 class Main extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.mpv = null;
-    this.state = {pause: true, "time-pos": 0, duration: 0, fullscreen: false};
+    this.state = {pause: false, "time-pos": 0, duration: 0, fullscreen: false};
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleMPVReady = this.handleMPVReady.bind(this);
     this.handlePropertyChange = this.handlePropertyChange.bind(this);
@@ -21,8 +20,10 @@ class Main extends React.PureComponent {
     this.handleSeekMouseDown = this.handleSeekMouseDown.bind(this);
     this.handleSeekMouseUp = this.handleSeekMouseUp.bind(this);
     this.handleLoad = this.handleLoad.bind(this);
+    this.mpv = new MpvJs(this.handleMPVReady, this.handlePropertyChange);
   }
   componentDidMount() {
+    this.mpv.setPluginNode();
     document.addEventListener("keydown", this.handleKeyDown, false);
   }
   componentWillUnmount() {
@@ -37,7 +38,6 @@ class Main extends React.PureComponent {
     }
   }
   handleMPVReady(mpv) {
-    this.mpv = mpv;
     const observe = mpv.observe.bind(mpv);
     ["pause", "time-pos", "duration", "eof-reached"].forEach(observe);
     this.mpv.property("hwdec", "auto");
@@ -94,14 +94,10 @@ class Main extends React.PureComponent {
     }
   }
   render() {
+    let Embed = React.createElement('embed',this.mpv.getDefProps({className:'player',onMouseDown:this.togglePause}))
     return (
       <div className="container">
-        <ReactMPV
-          className="player"
-          onReady={this.handleMPVReady}
-          onPropertyChange={this.handlePropertyChange}
-          onMouseDown={this.togglePause}
-        />
+        {Embed}
         <div className="controls">
           <button className="control" onClick={this.togglePause}>
             {this.state.pause ? "▶" : "❚❚"}
