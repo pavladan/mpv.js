@@ -40,7 +40,7 @@ In order to try mpv.js you need to install mpv library first.
 ### Add npm package
 
 ```bash
-npm install mpv.js --save
+npm install mpv.js-vanilla --save
 ```
 
 Package includes prebuilt binaries for all major platforms so no need to setup compilers.
