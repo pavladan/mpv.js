@@ -33,14 +33,7 @@ In order to try mpv.js you need to install mpv library first.
 [Simple Electron application on Angular](https://github.com/pavladan/mpv.js-on-angular)
 
 
-[Simple Electron application on React](example) yet capable of handling pretty much any available video thanks to mpv. Run:
-
-```bash
-git clone https://github.com/Kagami/mpv.js.git && cd mpv.js
-npm install
-# Only on Linux: npm run use-system-ffmpeg
-npm run example
-```
+[Simple Electron application on React](https://github.com/pavladan/mpv.js-on-react) 
 
 ## Usage
 
