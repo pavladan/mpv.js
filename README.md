@@ -33,89 +33,17 @@ In order to try mpv.js you need to install mpv library first.
 [Simple Electron application on Angular](https://github.com/pavladan/mpv.js-on-angular)
 
 
-[Simple Electron application on React](example) yet capable of handling pretty much any available video thanks to mpv. Run:
-
-```bash
-git clone https://github.com/Kagami/mpv.js.git && cd mpv.js
-npm install
-# Only on Linux: npm run use-system-ffmpeg
-npm run example
-```
+[Simple Electron application on React](https://github.com/pavladan/mpv.js-on-react) 
 
 ## Usage
 
 ### Add npm package
 
 ```bash
-npm install mpv.js --save
+npm install mpv.js-vanilla --save
 ```
 
 Package includes prebuilt binaries for all major platforms so no need to setup compilers.
-
-### Load plugin in main process (Electron example)
-
-```javascript
-const path = require("path");
-const {app} = require("electron");
-const {getPluginEntry} = require("mpv.js");
-
-// Absolute path to the plugin directory.
-const pluginDir = path.join(path.dirname(require.resolve("mpv.js")), "build", "Release");
-// See pitfalls section for details.
-if (process.platform !== "linux") {process.chdir(pluginDir);}
-// To support a broader number of systems.
-app.commandLine.appendSwitch("ignore-gpu-blacklist");
-app.commandLine.appendSwitch("register-pepper-plugins", getPluginEntry(pluginDir));
-```
-
-Don't forget to enable `plugins` feature when creating `BrowserWindow`:
-
-```javascript
-const win = new BrowserWindow({
-  // ...
-  webPreferences: {plugins: true},
-  // ...
-});
-```
-
-### Use MPV component (React example)
-
-```javascript
-const React = require("react");
-const {ReactMPV} = require("mpv.js");
-
-class Player extends React.PureComponent {
-  constructor(props) {
-    super(props);
-    this.mpv = null;
-    this.state = {pause: true, "time-pos": 0};
-  }
-  handleMPVReady(mpv) {
-    this.mpv = mpv;
-    this.mpv.observe("pause");
-    this.mpv.observe("time-pos");
-    this.mpv.command("loadfile", "/path/to/video.mkv");
-  }
-  handlePropertyChange(name, value) {
-    this.setState({[name]: value});
-  }
-  togglePause() {
-    this.mpv.property("pause", !this.state.pause);
-  }
-  render() {
-    return (
-      <ReactMPV
-        className="player"
-        onReady={this.handleMPVReady.bind(this)}
-        onPropertyChange={this.handlePropertyChange.bind(this)}
-        onMouseDown={this.togglePause.bind(this)}
-      />
-    );
-  }
-}
-```
-
-Currently only React component is provided.
 
 ### See also
 
